@@ -22,10 +22,10 @@ def make_message(num_messages,message_length):
     return(res_list)
 
     
-if __name__ == "__main__":
-    num_list = make_cell_number(5)
-    mess_list = make_message(5,100)
-    prod_list = zip(num_list,mess_list)
+def produce(num_of_recievers=1000, message_len=100):
+    num_list = make_cell_number(num_of_recievers)
+    mess_list = make_message(num_of_recievers,message_len)
+    return(zip(num_list,mess_list))
 
 
 
