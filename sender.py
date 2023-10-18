@@ -1,13 +1,12 @@
 from producer import produce
+from progress1 import progress_bar
 import numpy as np
 import math
 from itertools import islice
-import time
 import concurrent.futures
 
-def per_sender(inner_list):
-    sleep_time = inner_list
-    time.sleep(sleep_time)
+def per_sender(sleep_time,num_senders,num_per_sender):
+    progress_bar(num_senders,sleep_time,num_per_sender)
 
 
 def send(num_senders, num_recievers, mess_len,mean_time_secs,std_time, fail_rate):
@@ -23,17 +22,12 @@ def send(num_senders, num_recievers, mess_len,mean_time_secs,std_time, fail_rate
     new_zip = zip(without_dropped_sms,time_dist)
     it = iter(list(new_zip))
     chunks.append([list(islice(it, 0, j)) for j in num_per_sender])
-    for j in range(len(chunks[0])):
-        for i in range(len(chunks[0][j])):
-            print(chunks[0][j][i][1])
-            pool.submit(per_sender(chunks[0][j][i][1]))
+    pool.submit(per_sender(chunks[0],num_senders,num_per_sender))
     pool.shutdown(wait=True)
  
     print("All senders completed")
 
-
-print(send(2,5,10,3,0.5,0))
-
+send(5,10,100,5,0.3,0.2)
     
 
 
