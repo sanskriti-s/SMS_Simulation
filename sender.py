@@ -3,7 +3,7 @@ import numpy as np
 import math
 from itertools import islice
 import time
-import threading
+import concurrent.futures
 
 def per_sender(inner_list):
     sleep_time = inner_list
@@ -11,6 +11,7 @@ def per_sender(inner_list):
 
 
 def send(num_senders, num_recievers, mess_len,mean_time_secs,std_time, fail_rate):
+    pool = concurrent.futures.ThreadPoolExecutor()
     chunks =[]
     prod = produce(num_recievers,mess_len)
     unzip_prod = list(prod)
@@ -19,17 +20,19 @@ def send(num_senders, num_recievers, mess_len,mean_time_secs,std_time, fail_rate
     time_dist = np.random.normal(mean_time_secs, std_time,len(without_dropped_sms))   
 
 
-    new_zip = [zip(without_dropped_sms,time_dist)]
-    it = iter(list(new_zip[0]))
+    new_zip = zip(without_dropped_sms,time_dist)
+    it = iter(list(new_zip))
     chunks.append([list(islice(it, 0, j)) for j in num_per_sender])
-    print(chunks)
-    for i in range(len(chunks[0])):
-        print(chunks[0][0][i][1])
-        per_sender(chunks[0][0][i][1])
+    for j in range(len(chunks[0])):
+        for i in range(len(chunks[0][j])):
+            print(chunks[0][j][i][1])
+            pool.submit(per_sender(chunks[0][j][i][1]))
+    pool.shutdown(wait=True)
+ 
+    print("All senders completed")
 
 
-
-print(send(2,5,10,3,0.5,0.3))
+print(send(2,5,10,3,0.5,0))
 
     
 
